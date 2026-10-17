@@ -4,7 +4,7 @@ COSC 121 final project (in progress).
 
 ## What is a zip bomb?
 
-A tiny file that becomes huge when unzipped. For example, a 45 KB file can turn into 5 GB, enough to fill a server's memory or disk and crash it.
+A tiny file that becomes huge when unzipped. For example, a 45 KB file can turn into 5 GB or more, enough to fill a server's memory or disk and crash it.
 
 It works because zip files store repeats very efficiently: "write 0, one billion times" takes almost no space. Normal files shrink 3–10x; a zip bomb shrinks 1,000x or more.
 
