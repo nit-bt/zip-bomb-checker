@@ -39,3 +39,34 @@ A Python program that checks a zip or Word file **before it is opened** and says
 - An API or admin dashboard
 
 **Target:** small to medium websites that accept file uploads.
+
+## Project files
+
+| File | What it does |
+| --- | --- |
+| `checks.py` | The 4 danger checks (ratio, file count, total size, nested zips) |
+| `scanner.py` | Runs the checks, adds up a score, gives the verdict |
+| `app.py` | Web page: upload a file, see the result |
+| `make_samples.py` | Makes small sample files for the demo |
+| `tests/` | Automatic tests. Red = not done yet, green = works |
+| `docs/bug_journal.md` | Every bug: problem, cause, fix |
+| `docs/decisions.md` | Why we chose each limit and tool |
+
+## Getting started (VS Code)
+
+1. `Ctrl+Shift+P` → **Python: Create Environment** → **Venv**
+2. Terminal (`` Ctrl+` ``): `pip install -r requirements.txt`
+3. Run the tests: Testing panel (flask icon) → play button, or `pytest`
+
+## Steps
+
+1. Setup ✅
+2. `check_ratio` in `checks.py`
+3. `check_file_count`
+4. `check_total_size`
+5. `check_nested`
+6. `scan` in `scanner.py`
+7. Web page in `app.py`
+8. Demo samples in `make_samples.py`
+
+Each step has hints in the file. When a step is done, its tests turn green.

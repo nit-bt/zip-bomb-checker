@@ -1,0 +1,10 @@
+# virtual environment
+.venv/
+
+# Python junk
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# test files (zip bombs) - never upload these
+samples/
