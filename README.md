@@ -22,12 +22,13 @@ A Python program that checks a zip or Word file **before it is opened** and says
 
 **We will build:**
 - Support for `.zip`, `.docx`, `.xlsx`, `.pptx`
-- 5 checks:
+- 6 checks:
   1. A file that grows more than 100x
-  2. More than 10,000 files inside
-  3. Total size over 1 GB
-  4. Zips inside zips, more than 2 levels deep
-  5. Python refuses to open it
+  2. A file that grows more than 1,000x (as much as zip can compress)
+  3. More than 10,000 files inside
+  4. Total size over 1 GB
+  5. Zips inside zips, more than 2 levels deep
+  6. Python refuses to open it
 - A risk score and verdict with reasons
 - A simple web page: upload a file, see the result
 - Tests with small sample files
@@ -44,7 +45,7 @@ A Python program that checks a zip or Word file **before it is opened** and says
 
 | File | What it does |
 | --- | --- |
-| `checks.py` | The 4 danger checks (ratio, file count, total size, nested zips) |
+| `checks.py` | The danger checks (ratio, extreme ratio, file count, total size, nested zips) |
 | `scanner.py` | Runs the checks, adds up a score, gives the verdict |
 | `app.py` | Web page: upload a file, see the result |
 | `make_samples.py` | Makes small sample files for the demo |
@@ -52,21 +53,29 @@ A Python program that checks a zip or Word file **before it is opened** and says
 | `docs/bug_journal.md` | Every bug: problem, cause, fix |
 | `docs/decisions.md` | Why we chose each limit and tool |
 
-## Getting started (VS Code)
+## How to run
+
+In VS Code:
 
 1. `Ctrl+Shift+P` → **Python: Create Environment** → **Venv**
 2. Terminal (`` Ctrl+` ``): `pip install -r requirements.txt`
-3. Run the tests: Testing panel (flask icon) → play button, or `pytest`
+3. Make the sample files: `python make_samples.py`
+4. Start the web page: `streamlit run app.py`
+5. Upload a file from `samples/` and see the verdict
 
-## Steps
+Run the tests: Testing panel (flask icon) → play button, or `pytest`.
 
-1. Setup ✅
-2. `check_ratio` in `checks.py`
-3. `check_file_count`
-4. `check_total_size`
-5. `check_nested`
-6. `scan` in `scanner.py`
-7. Web page in `app.py`
-8. Demo samples in `make_samples.py`
+## Results on the sample files
 
-Each step has hints in the file. When a step is done, its tests turn green.
+| File | Verdict | Score | Why |
+| --- | --- | --- | --- |
+| `normal.zip` | safe | 0 | |
+| `resume.docx` | safe | 0 | |
+| `many_files.zip` | suspicious | 40 | 10,001 files inside |
+| `fake.zip` | suspicious | 40 | Python refused to open it |
+| `nested.zip` | bomb | 70 | zips nested more than 2 levels deep |
+| `ratio_bomb.zip` | bomb | 80 | grows 1,028x |
+
+## Known limitation
+
+The checks trust the sizes written inside the zip. A zip can lie about them. Catching that would mean unzipping in small pieces and counting the real bytes, which is outside our scope.

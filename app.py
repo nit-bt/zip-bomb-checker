@@ -1,36 +1,48 @@
-"""The web page (Step 7).
+"""The web page.
 
 Run it in the terminal:
     streamlit run app.py
 It opens in your browser.
-
-What the page does:
-    1. Show a title.
-    2. Let the user upload a .zip, .docx, .xlsx or .pptx file.
-    3. Save it to a temporary file and call scanner.scan() on it.
-    4. Show the verdict in color and list the reasons.
-
-Useful Streamlit commands:
-    st.title("text")
-    uploaded = st.file_uploader("label", type=["zip", "docx", "xlsx", "pptx"])
-    uploaded.getvalue()      # the file's bytes
-    st.success("text")       # green box
-    st.warning("text")       # orange box
-    st.error("text")         # red box
-    st.write("text")
-
-Saving the upload so scan() can read it:
-    import tempfile
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(uploaded.getvalue())
-        path = tmp.name
 """
+
+import tempfile
+from pathlib import Path
 
 import streamlit as st
 
-import scanner
+from scanner import scan
 
+# How each verdict is shown: (Streamlit box, message)
+DISPLAY = {
+    "safe": (st.success, "Safe: no danger signs found."),
+    "suspicious": (st.warning, "Suspicious: be careful with this file."),
+    "bomb": (st.error, "Zip bomb: do not open this file."),
+}
+
+st.set_page_config(page_title="Zip Bomb Checker")
 st.title("Zip Bomb Checker")
-st.write("Upload a file to check it before opening it.")
+st.write("Upload a file to check it **before** anything opens it.")
 
-# Step 7: write the rest here.
+uploaded = st.file_uploader(
+    "Choose a file", type=["zip", "docx", "xlsx", "pptx"]
+)
+
+if uploaded is not None:
+    # scan() needs a file on disk, so save the upload to a temporary file.
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp.write(uploaded.getvalue())
+        temp_path = Path(tmp.name)
+
+    try:
+        result = scan(temp_path)
+    finally:
+        temp_path.unlink()  # always delete the temporary file
+
+    show_box, message = DISPLAY[result["verdict"]]
+    show_box(message)
+    st.metric("Risk score", f"{result['score']} / 100")
+
+    if result["reasons"]:
+        st.subheader("Why")
+        for reason in result["reasons"]:
+            st.write(f"- {reason}")

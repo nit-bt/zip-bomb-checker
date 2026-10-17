@@ -11,7 +11,7 @@ import zipfile
 import checks
 
 
-# ---------- Step 2: check_ratio ----------
+# ---------- check_ratio ----------
 
 def test_ratio_normal_zip_is_fine(normal_zip):
     with zipfile.ZipFile(normal_zip) as z:
@@ -25,7 +25,17 @@ def test_ratio_catches_zeros(ratio_zip):
     assert "zeros.bin" in reason
 
 
-# ---------- Step 3: check_file_count ----------
+def test_extreme_ratio_normal_zip_is_fine(normal_zip):
+    with zipfile.ZipFile(normal_zip) as z:
+        assert checks.check_extreme_ratio(z) is None
+
+
+def test_extreme_ratio_catches_zeros(ratio_zip):
+    with zipfile.ZipFile(ratio_zip) as z:
+        assert checks.check_extreme_ratio(z) is not None
+
+
+# ---------- check_file_count ----------
 
 def test_file_count_normal_zip_is_fine(normal_zip):
     with zipfile.ZipFile(normal_zip) as z:
@@ -39,7 +49,7 @@ def test_file_count_catches_too_many(many_files_zip):
     assert "10001" in reason.replace(",", "")
 
 
-# ---------- Step 4: check_total_size ----------
+# ---------- check_total_size ----------
 
 def test_total_size_normal_zip_is_fine(normal_zip):
     with zipfile.ZipFile(normal_zip) as z:
@@ -53,7 +63,7 @@ def test_total_size_catches_big(ratio_zip, monkeypatch):
         assert checks.check_total_size(z) is not None
 
 
-# ---------- Step 5: check_nested ----------
+# ---------- check_nested ----------
 
 def test_nested_normal_zip_is_fine(normal_zip):
     with zipfile.ZipFile(normal_zip) as z:

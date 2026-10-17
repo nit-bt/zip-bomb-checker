@@ -1,4 +1,4 @@
-"""Tests for scanner.py (Step 6).
+"""Tests for scanner.py.
 
 scan() should return a dictionary like:
     {"verdict": "safe", "score": 0, "reasons": []}
@@ -18,14 +18,18 @@ def test_docx_is_safe(docx_file):
     assert scanner.scan(docx_file)["verdict"] == "safe"
 
 
-def test_ratio_bomb_is_not_safe(ratio_zip):
+def test_ratio_bomb_is_bomb(ratio_zip):
     result = scanner.scan(ratio_zip)
-    assert result["verdict"] in ("suspicious", "bomb")
-    assert len(result["reasons"]) >= 1
+    assert result["verdict"] == "bomb"
+    assert len(result["reasons"]) == 2  # ratio + extreme ratio
 
 
-def test_nested_zip_is_not_safe(nested_zip):
-    assert scanner.scan(nested_zip)["verdict"] in ("suspicious", "bomb")
+def test_nested_zip_is_bomb(nested_zip):
+    assert scanner.scan(nested_zip)["verdict"] == "bomb"
+
+
+def test_many_files_is_suspicious(many_files_zip):
+    assert scanner.scan(many_files_zip)["verdict"] == "suspicious"
 
 
 def test_fake_zip_is_flagged(not_a_zip):
