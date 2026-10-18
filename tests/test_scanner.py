@@ -43,3 +43,22 @@ def test_score_never_above_100(many_files_zip, monkeypatch):
     monkeypatch.setattr(checks, "MAX_TOTAL_SIZE", 0)
     monkeypatch.setattr(checks, "MAX_RATIO", 0)
     assert scanner.scan(many_files_zip)["score"] <= 100
+
+
+# ---------- list_files ----------
+
+def test_list_files_shows_sizes(ratio_zip):
+    files = scanner.list_files(ratio_zip)
+    assert len(files) == 1
+    assert files[0]["name"] == "zeros.bin"
+    assert files[0]["unzipped"] == 2_000_000
+    assert files[0]["ratio"] > 100
+
+
+def test_list_files_highest_ratio_first(normal_zip):
+    files = scanner.list_files(normal_zip)
+    assert files[0]["ratio"] >= files[-1]["ratio"]
+
+
+def test_list_files_fake_zip_is_empty(not_a_zip):
+    assert scanner.list_files(not_a_zip) == []

@@ -54,6 +54,37 @@ def scan(path):
     return {"verdict": get_verdict(score), "score": score, "reasons": reasons}
 
 
+def list_files(path):
+    """Return what the zip says about each file inside, biggest ratio first.
+
+    Each item is a dictionary: name, zipped size, unzipped size, ratio.
+    Returns an empty list if Python can't open the file as a zip.
+    """
+    try:
+        with zipfile.ZipFile(path) as z:
+            infos = z.infolist()
+    except zipfile.BadZipFile:
+        return []
+
+    files = []
+    for info in infos:
+        if info.compress_size == 0:
+            ratio = 0
+        else:
+            ratio = info.file_size / info.compress_size
+
+        files.append({
+            "name": info.filename,
+            "zipped": info.compress_size,
+            "unzipped": info.file_size,
+            "ratio": ratio,
+        })
+
+    # Most suspicious files (highest ratio) at the top.
+    files.sort(key=lambda f: f["ratio"], reverse=True)
+    return files
+
+
 def get_verdict(score):
     """Turn a score into "safe", "suspicious" or "bomb"."""
     if score >= BOMB_SCORE:
